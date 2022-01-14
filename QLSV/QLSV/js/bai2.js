@@ -17,7 +17,7 @@ function renderTableSV(dssv) {
         <td>${sv.tinhDTB()}</td>
         <td>
         <button class="btn btn-success" onclick="suaSV('${sv.ma}')">Sửa</button>
-        <button class="btn btn-danger">xóa</button>
+        <button class="btn btn-danger" onclick="xoaSV('${sv.ma}')">xoa</button>
         </td>
         </tr>`
     }
@@ -48,7 +48,10 @@ function layThongTinSv() {
     var sinhVien = new SinhVien(maSvValue, tenSvValue, emailSvValue, matKhauSvValue, ngaySinhSvValue, khoaHocSvValue, diemToanValue, diemLyValue, diemHoaValue)
     return sinhVien
 }
-
+function luuLocalStorage(dssv){
+    var dssvJson = JSON.stringify(dssv) //chuyển kiểu dữ liệu sang Json trước khi lưu xuống local storage
+        localStorage.setItem(LOCALSTORAGE_DSSV, dssvJson) // lưu xuống local storage 
+}
 //b2: them sv moi vao object
 function themSinhVien() {
     // var maSvValue = document.getElementById('txtMaSV').value
@@ -68,8 +71,9 @@ function themSinhVien() {
     if (checkMaSV) {
         dssv.push(sinhVien)
 
-        var dssvJson = JSON.stringify(dssv) //chuyển kiểu dữ liệu sang Json trước khi lưu xuống local storage
-        localStorage.setItem(LOCALSTORAGE_DSSV, dssvJson) // lưu xuống local storage 
+        // var dssvJson = JSON.stringify(dssv) //chuyển kiểu dữ liệu sang Json trước khi lưu xuống local storage
+        // localStorage.setItem(LOCALSTORAGE_DSSV, dssvJson) // lưu xuống local storage 
+        luuLocalStorage(dssv)
 
     }
     renderTableSV(dssv)
@@ -80,21 +84,21 @@ function timViTri(maSV, arr) {
         const sv = arr[i]
         if (sv.ma.toString() === maSV.toString()) {
             viTri = i
+            return viTri
         }
-        return viTri
     }
 }
 
 
 function suaSV(maSV) {
-    // var viTri = timViTri(maSV, dssv)
-    var viTri = -1 
-    for ( var i = 0 ; i<dssv.length; i++){
-        const sv = dssv[i]
-        if(sv.ma = maSV){
-            viTri = i
-        }
-    }
+    // var viTri = -1 
+    // for ( var i = 0 ; i<dssv.length; i++){
+    //     const sv = dssv[i]
+    //     if(sv.ma = maSV){
+    //         viTri = i
+    //     }
+    // }
+    var viTri = timViTri(maSV, dssv)
     if (viTri !== -1) {
         var currentSV = dssv[viTri];
         document.getElementById('txtMaSV').value = currentSV.ma
@@ -109,13 +113,28 @@ function suaSV(maSV) {
         document.getElementById('txtDiemHoa').value = currentSV.hoa
     }
 }
+function xoaSV(maSV){
+    var viTri = timViTri(maSV,dssv )
+    if(viTri !== -1 ){
+        dssv.splice(viTri,1)
+
+        console.log(dssv);
+    }
+    renderTableSV(dssv)
+    luuLocalStorage(dssv)
+}
+
 function capNhatSv() {
     var sinhVien = layThongTinSv()
     var viTri = timViTri(sinhVien.ma, dssv)
     console.log(viTri);
     if (viTri !== -1) {
         dssv[viTri] = sinhVien
+
         renderTableSV(dssv)
+        // var dssvJson = JSON.stringify(dssv) //chuyển kiểu dữ liệu sang Json trước khi lưu xuống local storage
+        // localStorage.setItem(LOCALSTORAGE_DSSV, dssvJson) // lưu xuống local storage 
+        luuLocalStorage(dssv)
     }
 }
 var dssvJson = localStorage.getItem(LOCALSTORAGE_DSSV); // lấy dưới local storage lên 
